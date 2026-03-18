@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F-Score Analyzer — Value/Glamour Strategy</title>
+<script src="https://cdn.plot.ly/plotly-2.35.0.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<div class="app">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <svg class="logo-icon" width="28" height="28" viewBox="0 0 28 28" fill="none" aria-label="F-Score Analyzer logo">
+        <rect x="2" y="2" width="24" height="24" rx="4" stroke="currentColor" stroke-width="2"/>
+        <path d="M8 8h12M8 14h8M8 20h4" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <h1 class="logo-text">F-Score <span class="logo-accent">Analyzer</span></h1>
+    </div>
+    <div class="header-right">
+      <span class="header-subtitle">Piotroski & So (2012) Value/Glamour Framework</span>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Input Section -->
+    <section class="input-section">
+      <div class="input-card">
+        <div class="input-header">
+          <h2 class="input-title">Enter Tickers</h2>
+          <span class="input-hint">Up to 50 companies, comma-separated</span>
+        </div>
+        <div class="input-row">
+          <div class="input-wrapper">
+            <input
+              type="text"
+              id="ticker-input"
+              class="ticker-input"
+              placeholder="AAPL, MSFT, TSLA, AMZN, META, GOOG, JPM, WMT..."
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button id="clear-btn" class="clear-btn" title="Clear" style="display:none;">
+              <i data-lucide="x" style="width:16px;height:16px;"></i>
+            </button>
+          </div>
+          <button id="analyze-btn" class="analyze-btn">
+            <i data-lucide="search" style="width:18px;height:18px;"></i>
+            <span>Analyze</span>
+          </button>
+        </div>
+        <div class="quick-picks">
+          <span class="quick-label">Quick:</span>
+          <button class="quick-btn" data-tickers="AAPL,MSFT,GOOG,AMZN,META,NVDA,TSLA">Mag 7</button>
+          <button class="quick-btn" data-tickers="JPM,BAC,WFC,GS,MS,C,BLK,SCHW">Banks</button>
+          <button class="quick-btn" data-tickers="XOM,CVX,COP,SLB,EOG,MPC,VLO,OXY">Energy</button>
+          <button class="quick-btn" data-tickers="JNJ,UNH,PFE,ABBV,MRK,LLY,TMO,ABT">Healthcare</button>
+          <button class="quick-btn" data-tickers="WMT,COST,HD,TGT,LOW,TJX,ROST,DG">Retail</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Status / Loading -->
+    <div id="status-bar" class="status-bar" style="display:none;">
+      <div class="status-content">
+        <div class="spinner"></div>
+        <span id="status-text">Analyzing...</span>
+      </div>
+    </div>
+
+    <!-- Error Messages -->
+    <div id="error-bar" class="error-bar" style="display:none;">
+      <i data-lucide="alert-triangle" style="width:16px;height:16px;"></i>
+      <span id="error-text"></span>
+    </div>
+
+    <!-- Results -->
+    <div id="results-section" class="results-section" style="display:none;">
+      <!-- KPI Row -->
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <span class="kpi-label">Companies</span>
+          <span class="kpi-value" id="kpi-total">0</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Avg F-Score</span>
+          <span class="kpi-value" id="kpi-avg-fscore">0</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Median P/B</span>
+          <span class="kpi-value" id="kpi-median-pb">0</span>
+        </div>
+        <div class="kpi-card kpi-green">
+          <span class="kpi-label">Undervalued</span>
+          <span class="kpi-value" id="kpi-undervalued">0</span>
+          <span class="kpi-sub">Value + High F-Score</span>
+        </div>
+        <div class="kpi-card kpi-red">
+          <span class="kpi-label">Overvalued</span>
+          <span class="kpi-value" id="kpi-overvalued">0</span>
+          <span class="kpi-sub">Glamour + Low F-Score</span>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3>Value/Glamour Matrix</h3>
+          <span class="chart-subtitle">X: Price-to-Book (log scale) &middot; Y: Piotroski F-Score (0–9)</span>
+        </div>
+        <div id="scatter-chart" class="scatter-chart"></div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+        <div class="table-header">
+          <h3>Results</h3>
+          <div class="table-controls">
+            <div class="filter-group">
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="incongruent">Incongruent</button>
+              <button class="filter-btn" data-filter="congruent">Congruent</button>
+            </div>
+            <button id="export-btn" class="export-btn">
+              <i data-lucide="download" style="width:14px;height:14px;"></i>
+              CSV
+            </button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table id="results-table">
+            <thead>
+              <tr>
+                <th data-sort="ticker" class="sortable">Ticker</th>
+                <th data-sort="name" class="sortable">Company</th>
+                <th data-sort="sector" class="sortable">Sector</th>
+                <th data-sort="pb_ratio" class="sortable num">P/B</th>
+                <th data-sort="fscore" class="sortable num">F-Score</th>
+                <th data-sort="classification" class="sortable">Class</th>
+                <th data-sort="market_cap" class="sortable num">Market Cap</th>
+              </tr>
+            </thead>
+            <tbody id="results-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Metadata -->
+      <div class="metadata" id="metadata-bar"></div>
+    </div>
+
+    <!-- Company Detail Modal -->
+    <div id="modal-overlay" class="modal-overlay" style="display:none;">
+      <div class="modal" id="company-modal">
+        <button class="modal-close" id="modal-close">
+          <i data-lucide="x" style="width:20px;height:20px;"></i>
+        </button>
+        <div id="modal-content"></div>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      This tool is for educational purposes only. Not investment advice. Based on
+      <a href="https://doi.org/10.1093/rfs/hhs061" target="_blank" rel="noopener noreferrer">Piotroski & So (2012)</a>.
+    </div>
+  </main>
+
+  <footer class="footer">
+    <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">
+      Created with Perplexity Computer
+    </a>
+  </footer>
+</div>
+
+<script src="./app.js"></script>
+</body>
+</html>
