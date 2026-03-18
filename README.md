@@ -1,6 +1,10 @@
 # F-Score Analyzer
 
-A web application for evaluating publicly traded companies using the **Piotroski F-Score** and **Price-to-Book (P/B)** ratio framework from Piotroski & So (2012). The tool classifies companies into four quadrants (Value/Glamour × Strong/Weak) to identify potential expectation errors — stocks the market may have mispriced.
+A web application for evaluating publicly traded companies using the **Piotroski F-Score** and **Price-to-Book (P/B)** ratio framework from Piotroski & So (2012). The tool classifies stocks into four quadrants (Value/Glamour × Strong/Weak) to identify potential expectation errors — stocks the market may have mispriced.
+
+Built as part of the **Value Investing assignment** for [15.465 Alphanomics](https://mitsloan.mit.edu/) at MIT Sloan School of Management (March 2026).
+
+**Authors:** Andre Villela, Alex Ershov, Colin McGonigle, Luiz Rodolfo Ribeiro
 
 ![Screenshot](screenshot.png)
 
@@ -18,18 +22,18 @@ A web application for evaluating publicly traded companies using the **Piotroski
 
 ### Prerequisites
 
-- **Python 3.10+** installed
+- **Python 3.9+** installed
 - Internet connection (for Yahoo Finance data)
 
 ### Installation
 
 ```bash
-# 1. Unzip the project
-unzip fscore-analyzer.zip
+# 1. Clone the repo
+git clone https://github.com/asvillela/fscore-analyzer.git
 cd fscore-analyzer
 
 # 2. Create a virtual environment (recommended)
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate        # macOS/Linux
 # venv\Scripts\activate          # Windows
 
@@ -45,7 +49,7 @@ python api_server.py
 
 Open your browser and go to: **http://localhost:8000**
 
-That's it. The backend serves both the API and the frontend from a single process.
+The backend serves both the API and the frontend from a single process — no separate build step required.
 
 ### Usage
 
@@ -60,6 +64,10 @@ That's it. The backend serves both the API and the frontend from a single proces
 The system implements the framework from:
 
 > **Piotroski, J. D. & So, E. C. (2012).** *Identifying Expectation Errors in Value/Glamour Strategies: A Fundamental Analysis Approach.* Review of Financial Studies, 25(9), 2841–2875. [DOI: 10.1093/rfs/hhs065](https://doi.org/10.1093/rfs/hhs065)
+
+Building on the original F-Score paper:
+
+> **Piotroski, J. D. (2000).** *Value Investing: The Use of Historical Financial Statement Information to Separate Winners from Losers.* Journal of Accounting Research, 38, 1–41. [DOI: 10.2307/2672906](https://doi.org/10.2307/2672906)
 
 ### F-Score Signals (9 binary indicators)
 
@@ -77,21 +85,41 @@ The system implements the framework from:
 
 ### Quadrant Classification
 
-| | P/B < 3.0 (Value) | P/B ≥ 3.0 (Glamour) |
+Stocks are classified using P/B = 3.0 and F-Score = 5.5 as thresholds:
+
+|  | P/B < 3.0 (Value) | P/B ≥ 3.0 (Glamour) |
 |---|---|---|
-| **F-Score ≥ 6 (Strong)** | **BUY** — Potentially undervalued | Congruent (fairly priced) |
-| **F-Score ≤ 4 (Weak)** | Congruent (fairly priced) | **SHORT** — Potentially overvalued |
+| **F-Score > 5.5 (Strong)** | **BUY** — Potentially undervalued | Congruent (no mispricing) |
+| **F-Score ≤ 5.5 (Weak)** | Congruent (no mispricing) | **SHORT** — Potentially overvalued |
 
-## Data Source
+The key insight of Piotroski & So is that the combination of valuation and fundamentals reveals **expectation errors**: value stocks with strong fundamentals are likely over-penalized by the market; glamour stocks with weak fundamentals are likely overpriced.
 
-All financial data is retrieved from **Yahoo Finance** via the [yfinance](https://github.com/ranaroussi/yfinance) Python library. Data is cached for 24 hours to minimize API calls.
+## Application to U.S. Restaurant Industry
+
+This tool was originally used to screen **51 U.S.-listed restaurant and fast food companies**. Results from that analysis:
+
+- **8 companies** in Value + Strong quadrant (BUY zone, ~22%)
+- **6 companies** in Glamour + Weak quadrant (SHORT zone, ~17%)
+- Industry average F-Score: **5.1**
+
+Selected BUY candidates identified: `LOCO, CBRL, BLMN, RICK`
+Selected SHORT candidates identified: `WEN, HCHL`
+
+To replicate the restaurant industry screen, try entering:
+```
+LOCO, CBRL, BLMN, RICK, CAVA, WEN, HCHL, YUMC, MCD, QSR, DRI, EAT, SHAK, BROS
+```
 
 ## Tech Stack
 
 - **Backend:** Python, FastAPI, yfinance, pandas
 - **Frontend:** Vanilla HTML/CSS/JavaScript (no build step)
-- **Charts:** Custom canvas-based scatter plot
+- **Charts:** Plotly.js
+
+## Data Source
+
+All financial data is retrieved from **Yahoo Finance** via the [yfinance](https://github.com/ranaroussi/yfinance) Python library. Data is cached for 24 hours to minimize API calls.
 
 ## License
 
-This project was built for educational purposes (MIT Sloan — Alphanomics course). Use at your own discretion.
+This project was built for educational purposes as part of MIT Sloan's Alphanomics course (15.465). Use at your own discretion. Not investment advice.
